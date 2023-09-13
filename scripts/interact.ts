@@ -7,7 +7,7 @@ async function main() {
 
   const [owner, spender] = await ethers.getSigners();
 
-// const owner = "0xe9999a29B116cB45444621EcD1CE52CA013243E4"
+ const owneraddr = "0xe9999a29B116cB45444621EcD1CE52CA013243E4"
 
   // contract addresses
   // const LmaoToken1 = "0x18ca7B243b1f315BBeC55e98C516C1Ce30dcBf87";
