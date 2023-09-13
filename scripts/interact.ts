@@ -9,6 +9,8 @@ async function main() {
 
  const owneraddr = "0xe9999a29B116cB45444621EcD1CE52CA013243E4"
 
+ const LMAOAddr = '0x381313a0ccA2Ae9f9FE50bbB9577E6e930DA15aA'
+
   // contract addresses
   // const LmaoToken1 = "0x18ca7B243b1f315BBeC55e98C516C1Ce30dcBf87";
   // const WWlmao = "0x8d825EFA26bDCA39f9EB7aD498C7d2C7d58f747d";
