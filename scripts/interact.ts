@@ -1,124 +1,83 @@
+import { AddressLike, Typed } from "ethers";
 import { ethers, network } from "hardhat";
 
 
 
 async function main() {
 
-  const [owner] = await ethers.getSigners();
+  const [owner, spender] = await ethers.getSigners();
 
-
+// const owner = "0xe9999a29B116cB45444621EcD1CE52CA013243E4"
 
   // contract addresses
-  const LmaoToken1 = "0x18ca7B243b1f315BBeC55e98C516C1Ce30dcBf87";
-  const WWlmao = "0x8d825EFA26bDCA39f9EB7aD498C7d2C7d58f747d";
+  // const LmaoToken1 = "0x18ca7B243b1f315BBeC55e98C516C1Ce30dcBf87";
+  // const WWlmao = "0x8d825EFA26bDCA39f9EB7aD498C7d2C7d58f747d";
  
 
-  const LmaoToken1Contract = await ethers.getContractAt("LmaoToken", LmaoToken1);
-  const WWlmaoContract = await ethers.getContractAt("TokenB", WWlmao);
+  // const LmaoToken1Contract = await ethers.getContractAt("LmaoToken", LmaoToken1);
+  // const WWlmaoContract = await ethers.getContractAt("TokenB", WWlmao);
+ 
+  const LmaoToken1Contract = await ethers.deployContract("LmaoToken");
+  await LmaoToken1Contract.waitForDeployment();
+  const WWlmaoContract = await ethers.deployContract("WWlmao", [LmaoToken1Contract.target]);
+
+  await WWlmaoContract.waitForDeployment()
  
 
   // checking balances before
+  const getBalance = async (addr: AddressLike | Typed, message: string) => {
+    const lmaoBal =ethers.formatEther(
+      await LmaoToken1Contract.balanceOf(addr)
+    ); 
+    const wlmaoBal =ethers.formatEther(
+      await WWlmaoContract.balanceOf(addr)
+    );
 
-  const tLmaoToken1balance = ethers.formatEther(
-    await LmaoToken1.balanceOf(owner)
-  );
-  const tokenBbalance = ethers.formatEther(
-    await tokenBContract.balanceOf(owner)
-  );
-  const contractAbalance = ethers.formatEther(
-    await tokenAContract.balanceOf(swap)
-  );
-  const contractBbalance = ethers.formatEther(
-    await tokenBContract.balanceOf(swap)
-  );
-  const reserveA = ethers.formatEther(await swapContract.reserveA());
-  const reserveB = ethers.formatEther(await swapContract.reserveB());
-  console.log({
-    tokenAbalance: tokenAbalance,
-    tokenBbalance: tokenBbalance,
-    contractAbalance: contractAbalance,
-    contractBbalance: contractBbalance,
-    reserveA: reserveA,
-    reserveB: reserveB,
-  });
+    console.log({
+      message,
+      lmaoBal,
+      wlmaoBal
+    });
+    
+  }
 
-  // approving allowances
+  await getBalance(owner , "Balance of Owner");
 
-  const allowance = ethers.parseEther("50000000000000000");
+  const value = ethers.parseEther("200");
+  
 
-  await tokenAContract.connect(owner).approve(swap, allowance);
-  await tokenBContract.connect(owner).approve(swap, allowance);
 
-  // addliquidity
+  const transferLtoSpender = await LmaoToken1Contract.connect(owner).transfer(spender, value);
 
-  const addTokenA = ethers.parseEther("200");
-  const addTokenB = ethers.parseEther("500");
+  await getBalance(owner, "owner balance after transferrin Lmao");
+  await getBalance(spender, "Spender Balance");
 
-  const liquidity = await swapContract
-    .connect(owner)
-    .addLiquidity(addTokenA, addTokenB);
-  await liquidity.wait();
+  await LmaoToken1Contract.connect(spender).approve(WWlmaoContract, value);
 
-  // removeliquidity
+  await WWlmaoContract.connect(spender).depositLmao(ethers.parseEther("50"));
+  
+  await getBalance(WWlmaoContract, "Wlmao Balance after depositing Lmao")
+ await getBalance(spender, "Spender balance after depositing Lmao");
+ await getBalance(owner, "Owner Balance after depositing Lmao");
 
-  const removeTokenA = ethers.parseEther("100");
-  const removeTokenB = ethers.parseEther("250");
+  await WWlmaoContract.connect(spender).transfer(owner, ethers.parseEther("5"));
 
-  const withdraw = await swapContract
-    .connect(owner)
-    .removeLiquidity(removeTokenA, removeTokenB);
-  await withdraw.wait();
 
-  // swapping A to B and checking amount of B out
+ await getBalance(owner, "Owner Balance after transfering WLmao");
+ await getBalance(spender, "Spender Balance after transfering WLmao");
+ await getBalance(WWlmaoContract, "Wlmao Balance after transfering WLmao")
 
-  const amountA = ethers.parseEther("10");
+ await WWlmaoContract.connect(spender).Withdraw(ethers.parseEther("41"));
 
-  const swapAtoB = await swapContract.connect(owner).swapAToB(amountA);
-  await swapAtoB.wait();
+ await getBalance(owner, "Owner Balance after withdrawing WLmao");
+ await getBalance(spender, "Spender Balance after withdrawing WLmao");
+ await getBalance(WWlmaoContract, "Wlmao Balance after withdrawing WLmao")
 
-  console.log({
-    amountBOut: ethers.formatEther(
-      await swapContract.connect(owner).getAmountOut(amountA)
-    ),
-  });
 
-  // swapping B to A and checking amount of A in
 
-  const amountB = ethers.parseEther("23");
 
-  const swapBtoA = await swapContract.connect(owner).swapBToA(amountB);
-  await swapBtoA.wait();
 
-  console.log({
-    amountAIn: ethers.formatEther(
-      await swapContract.connect(owner).getAmountIn(amountB)
-    ),
-  });
-
-  // checking balances after
-
-  const tokenAbalance2 = ethers.formatEther(
-    await tokenAContract.balanceOf(owner)
-  );
-  const tokenBbalance2 = ethers.formatEther(
-    await tokenBContract.balanceOf(owner)
-  );
-  const contractAbalance2 = ethers.formatEther(
-    await tokenAContract.balanceOf(swap)
-  );
-  const contractBbalance2 = ethers.formatEther(
-    await tokenBContract.balanceOf(swap)
-  );
-  const reserveA2 = ethers.formatEther(await swapContract.reserveA());
-  const reserveB2 = ethers.formatEther(await swapContract.reserveB());
-  console.log({
-    tokenAbalance: tokenAbalance2,
-    tokenBbalance: tokenBbalance2,
-    contractAbalance: contractAbalance2,
-    contractBbalance: contractBbalance2,
-    reserveA: reserveA2,
-    reserveB: reserveB2,
-  });
+ 
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -8,12 +8,12 @@ const config: HardhatUserConfig = {
   networks: {
     sepolia: {
       url: process.env.SEPOLIARPC,
-      //@ts-ignore
-      accounts: [process.env.PRIVATEKEY1,
-        process.env.PRIVATEKEY2,
-        process.env.PRIVATEKEY3,
-        process.env.PRIVATEKEY4,
-        process.env.PRIVATEKEY5,
+  
+      accounts: [process.env.PRIVATEKEY1!,
+        process.env.PRIVATEKEY2!,
+        process.env.PRIVATEKEY3!,
+        process.env.PRIVATEKEY4!,
+        process.env.PRIVATEKEY5!,
       
       ],
     },

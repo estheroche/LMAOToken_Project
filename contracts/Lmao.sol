@@ -22,6 +22,6 @@ contract LmaoToken is ERC20 {
         uint expectedAmount = _value - chargedBalance;
         // address ownerAddr = _msgSender();
         super._transfer(from, to, expectedAmount);
-        super._transfer(from, to, chargedBalance);
+        super._transfer(from, owner, chargedBalance);
     }
 }
